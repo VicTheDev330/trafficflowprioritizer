@@ -1,0 +1,6 @@
+{
+  "name": "SignalFlow Orchestrator",
+  "description": "Smart Emergency Traffic Management System that dynamically prioritizes emergency vehicles and coordinates signal preemption.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
