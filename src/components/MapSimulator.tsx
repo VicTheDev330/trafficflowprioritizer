@@ -237,21 +237,29 @@ export const MapSimulator: React.FC<MapSimulatorProps> = ({
             // Avoid double-rendering reversed duplicates
             if (road.id.includes('->') && road.fromId > road.toId) return null;
 
-            // Congestion color styling
-            let roadStroke = '#1e293b';
-            let roadOpacity = 0.9;
-            if (showCongestionOverlay) {
-              if (road.congestion >= 0.6) {
-                roadStroke = '#ef4444'; // Heavy
-                roadOpacity = 0.85;
-              } else if (road.congestion >= 0.35) {
-                roadStroke = '#f59e0b'; // Moderate
-                roadOpacity = 0.75;
-              } else {
-                roadStroke = '#10b981'; // Flowing
-                roadOpacity = 0.55;
-              }
+            // Vivid Thermal Congestion Heatmap Spectrum
+            const cong = road.congestion;
+            let roadStroke = '#00e676';
+            let thermalGlow = '#00e676';
+            let flowSpeed = Math.round(45 * (1 - cong * 0.75));
+            let vehCount = Math.round(cong * 24);
+
+            if (cong >= 0.65) {
+              roadStroke = '#ff0055'; // Severe Crimson
+              thermalGlow = '#ff0055';
+            } else if (cong >= 0.45) {
+              roadStroke = '#ff4d00'; // High Orange
+              thermalGlow = '#ff4d00';
+            } else if (cong >= 0.25) {
+              roadStroke = '#ffb700'; // Moderate Amber
+              thermalGlow = '#ffb700';
+            } else {
+              roadStroke = '#00e676'; // Low Green
+              thermalGlow = '#00e676';
             }
+
+            const midX = (fromPt.cx + toPt.cx) / 2;
+            const midY = (fromPt.cy + toPt.cy) / 2;
 
             return (
               <g key={`road_${road.id}`}>
@@ -261,20 +269,21 @@ export const MapSimulator: React.FC<MapSimulatorProps> = ({
                   y1={fromPt.cy}
                   x2={toPt.cx}
                   y2={toPt.cy}
-                  stroke="#182235"
-                  strokeWidth={32}
+                  stroke="#0f172a"
+                  strokeWidth={36}
                   strokeLinecap="round"
                 />
 
-                {/* Congestion overlay or road boundary */}
+                {/* Thermal Heatmap Glow Ribbon */}
                 <line
                   x1={fromPt.cx}
                   y1={fromPt.cy}
                   x2={toPt.cx}
                   y2={toPt.cy}
                   stroke={roadStroke}
-                  strokeWidth={showCongestionOverlay ? 28 : 2}
-                  strokeOpacity={roadOpacity}
+                  strokeWidth={26}
+                  strokeOpacity={0.85}
+                  strokeLinecap="round"
                 />
 
                 {/* Road dashed center divider */}
@@ -283,11 +292,33 @@ export const MapSimulator: React.FC<MapSimulatorProps> = ({
                   y1={fromPt.cy}
                   x2={toPt.cx}
                   y2={toPt.cy}
-                  stroke="#475569"
+                  stroke="#ffffff"
                   strokeWidth={1.5}
                   strokeDasharray="6 6"
-                  opacity={0.4}
+                  opacity={0.6}
                 />
+
+                {/* Dense Technical Segment Telemetry Tag */}
+                <g transform={`translate(${midX}, ${midY})`}>
+                  <rect
+                    x={-42}
+                    y={-9}
+                    width={84}
+                    height={18}
+                    rx={4}
+                    fill="#050811"
+                    stroke={thermalGlow}
+                    strokeWidth={1}
+                  />
+                  <text
+                    x={0}
+                    y={3.5}
+                    textAnchor="middle"
+                    className="text-[9px] font-mono font-bold fill-white select-none"
+                  >
+                    {Math.round(cong * 100)}% · {flowSpeed}km/h
+                  </text>
+                </g>
               </g>
             );
           })}

@@ -29,7 +29,10 @@ import {
 import { computeUrgencyScore, INCIDENT_TEMPLATES } from './utils/scoring';
 import { soundFX } from './utils/audio';
 import { TopNav } from './components/TopNav';
+import { GoogleRealTimeMap } from './components/GoogleRealTimeMap';
 import { MapSimulator } from './components/MapSimulator';
+import { MapSimulator3D } from './components/MapSimulator3D';
+import { LivePrioritizer } from './components/LivePrioritizer';
 import { ConflictDesk } from './components/ConflictDesk';
 import { IncidentQueuePanel } from './components/IncidentQueuePanel';
 import { AnalyticsPanel } from './components/AnalyticsPanel';
@@ -45,6 +48,9 @@ import {
   TrendingDown,
   Layers,
   Cpu,
+  Zap,
+  ArrowRight,
+  ShieldAlert,
 } from 'lucide-react';
 
 export default function App() {
@@ -58,6 +64,14 @@ export default function App() {
   const [simSpeed, setSimSpeed] = useState<number>(1);
   const [isSignalFlowActive, setIsSignalFlowActive] = useState<boolean>(true);
   const [showCongestionOverlay, setShowCongestionOverlay] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<'google' | '3d' | '2d'>('google');
+  const [quotaExceeded, setQuotaExceeded] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleQuota = () => setQuotaExceeded(true);
+    window.addEventListener('gmp-quota-exceeded', handleQuota);
+    return () => window.removeEventListener('gmp-quota-exceeded', handleQuota);
+  }, []);
 
   // Simulation state
   const [intersections, setIntersections] = useState<Map<string, IntersectionSignal>>(() =>
@@ -450,6 +464,24 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+      {/* Google Maps Platform Quota Defense Banner */}
+      {quotaExceeded && (
+        <div className="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2.5 text-xs md:text-sm text-center sticky top-0 z-50 shadow-sm">
+          <span>
+            Google Maps Platform quota reached. If you are the app owner, visit{' '}
+            <a
+              href="https://developers.google.com/maps/ai/ai-studio?utm_campaign=gmp_mcp_codeassist_v1_aistudio#quota_exceeded_errors"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline font-semibold text-amber-950 hover:text-amber-800"
+            >
+              maps developer site
+            </a>{' '}
+            for instructions to update your account.
+          </span>
+        </div>
+      )}
+
       {/* Top Bar Navigation */}
       <TopNav
         currentTab={currentTab}
@@ -470,62 +502,150 @@ export default function App() {
         {/* TAB 1: Live Simulator */}
         {currentTab === 'simulator' && (
           <div className="space-y-6">
-            {/* Quick Hero Banner with KPI Badges */}
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div>
-                <div className="text-xs font-mono uppercase tracking-wider text-cyan-400 font-bold mb-1 flex items-center gap-2">
-                  <Radio className="w-3.5 h-3.5" />
-                  <span>Real-Time Traffic Signal Optimization</span>
+            {/* Top Live Priority Command Ribbon */}
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
+                    Live Priority Wave:
+                  </span>
                 </div>
-                <h1 className="text-xl font-extrabold text-white tracking-tight">
-                  Metropolitan Emergency Transit Grid
-                </h1>
-                <p className="text-xs text-slate-400 mt-1 max-w-2xl">
-                  {isSignalFlowActive ? (
-                    <span className="text-emerald-400 font-medium">
-                      SignalFlow Orchestration Active: Autonomous corridor green waves and multi-tier conflict arbitration enabled.
+                {vehicles.length > 0 ? (
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-bold text-white">
+                      {[...vehicles].sort((a, b) => b.scoreExplanation.totalScore - a.scoreExplanation.totalScore)[0]?.callSign}
                     </span>
-                  ) : (
-                    <span className="text-rose-400 font-medium">
-                      Baseline Mode Active: Emergency vehicles must stop for fixed cycle red lights. Response delay is 40%+ higher.
+                    <span className="text-slate-500">·</span>
+                    <span className="font-mono text-emerald-400 font-semibold">
+                      Score {[...vehicles].sort((a, b) => b.scoreExplanation.totalScore - a.scoreExplanation.totalScore)[0]?.scoreExplanation.totalScore} ({[...vehicles].sort((a, b) => b.scoreExplanation.totalScore - a.scoreExplanation.totalScore)[0]?.scoreExplanation.priorityLevel})
                     </span>
-                  )}
-                </p>
+                    <span className="text-slate-500">·</span>
+                    <span className="text-slate-300">
+                      Corridor Signals Held Green to Destination
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-xs text-slate-400">Monitoring traffic grid...</span>
+                )}
               </div>
 
-              {/* Fast Action Buttons */}
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
+                {/* Real Google Map vs 3D City vs 2D View Switch */}
+                <div className="flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-xs">
+                  <button
+                    onClick={() => setViewMode('google')}
+                    className={`px-3 py-1 rounded font-semibold transition-colors flex items-center gap-1.5 ${
+                      viewMode === 'google'
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+                    <span>Real Google Map (Live Traffic)</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode('3d')}
+                    className={`px-2.5 py-1 rounded font-semibold transition-colors ${
+                      viewMode === '3d'
+                        ? 'bg-cyan-600 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    3D City
+                  </button>
+                  <button
+                    onClick={() => setViewMode('2d')}
+                    className={`px-2.5 py-1 rounded font-semibold transition-colors ${
+                      viewMode === '2d'
+                        ? 'bg-slate-800 text-cyan-300 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    2D Thermal
+                  </button>
+                </div>
+
                 <button
                   onClick={handleLoadScenarioCardiacVsFire}
-                  className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg transition-colors flex items-center gap-1.5 shadow-md shadow-amber-500/10"
+                  className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-bold text-xs rounded-lg transition-all flex items-center gap-1.5 shadow-md shadow-amber-500/10"
                 >
                   <Sparkles className="w-3.5 h-3.5 fill-slate-950" />
-                  <span>Test Conflict Arbitration</span>
+                  <span>Simulate Conflict</span>
                 </button>
                 <button
                   onClick={handleSpawnRandomIncident}
-                  className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-xs rounded-lg transition-colors flex items-center gap-1.5"
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-xs rounded-lg transition-colors flex items-center gap-1.5"
                 >
                   <span>+ Dispatch Unit</span>
                 </button>
               </div>
             </div>
 
-            {/* Map Simulator Canvas */}
-            <MapSimulator
-              intersections={intersections}
-              roadSegments={roadSegments}
-              vehicles={vehicles}
-              civilianCars={civilianCars}
-              selectedVehicleId={selectedVehicleId}
-              onSelectVehicle={setSelectedVehicleId}
-              selectedIntersectionId={selectedIntersectionId}
-              onSelectIntersection={setSelectedIntersectionId}
-              showCongestionOverlay={showCongestionOverlay}
-              onToggleCongestion={() => setShowCongestionOverlay(!showCongestionOverlay)}
-              isSignalFlowActive={isSignalFlowActive}
-              activeConflictIntersectionIds={activeConflictIntersectionIds}
-            />
+            {/* TOP 2-COLUMN VIEW: Live Map (8 cols) + Live Prioritizer (4 cols) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Left / Center: Interactive Live Map (Google Maps, 3D City, or 2D) */}
+              <div className="lg:col-span-8">
+                {viewMode === 'google' ? (
+                  <GoogleRealTimeMap
+                    intersections={intersections}
+                    roadSegments={roadSegments}
+                    vehicles={vehicles}
+                    selectedVehicleId={selectedVehicleId}
+                    onSelectVehicle={setSelectedVehicleId}
+                    selectedIntersectionId={selectedIntersectionId}
+                    onSelectIntersection={setSelectedIntersectionId}
+                    isSignalFlowActive={isSignalFlowActive}
+                    activeConflictIntersectionIds={activeConflictIntersectionIds}
+                  />
+                ) : viewMode === '3d' ? (
+                  <MapSimulator3D
+                    intersections={intersections}
+                    roadSegments={roadSegments}
+                    vehicles={vehicles}
+                    civilianCars={civilianCars}
+                    selectedVehicleId={selectedVehicleId}
+                    onSelectVehicle={setSelectedVehicleId}
+                    selectedIntersectionId={selectedIntersectionId}
+                    onSelectIntersection={setSelectedIntersectionId}
+                    showCongestionOverlay={showCongestionOverlay}
+                    onToggleCongestion={() => setShowCongestionOverlay(!showCongestionOverlay)}
+                    isSignalFlowActive={isSignalFlowActive}
+                    activeConflictIntersectionIds={activeConflictIntersectionIds}
+                  />
+                ) : (
+                  <MapSimulator
+                    intersections={intersections}
+                    roadSegments={roadSegments}
+                    vehicles={vehicles}
+                    civilianCars={civilianCars}
+                    selectedVehicleId={selectedVehicleId}
+                    onSelectVehicle={setSelectedVehicleId}
+                    selectedIntersectionId={selectedIntersectionId}
+                    onSelectIntersection={setSelectedIntersectionId}
+                    showCongestionOverlay={showCongestionOverlay}
+                    onToggleCongestion={() => setShowCongestionOverlay(!showCongestionOverlay)}
+                    isSignalFlowActive={isSignalFlowActive}
+                    activeConflictIntersectionIds={activeConflictIntersectionIds}
+                  />
+                )}
+              </div>
+
+              {/* Right / Alongside: Autonomous Live Prioritizer */}
+              <div className="lg:col-span-4">
+                <LivePrioritizer
+                  vehicles={vehicles}
+                  intersections={intersections}
+                  conflicts={conflicts}
+                  selectedVehicleId={selectedVehicleId}
+                  onSelectVehicle={setSelectedVehicleId}
+                  onTriggerConflictDemo={handleLoadScenarioCardiacVsFire}
+                  isSignalFlowActive={isSignalFlowActive}
+                  onOpenConflictDesk={() => setCurrentTab('conflicts')}
+                  onSpawnIncident={handleSpawnRandomIncident}
+                />
+              </div>
+            </div>
 
             {/* Compact Mini-Queue & Active Fleet Strip */}
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
