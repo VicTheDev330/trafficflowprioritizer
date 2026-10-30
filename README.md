@@ -1,160 +1,27 @@
+
 # 🚦 SignalFlow Orchestrator
-### Smart Emergency Traffic Management System
 
-> A TCS iON AI Hackathon demonstration project that simulates intelligent traffic-signal coordination to help emergency vehicles move through intersections with less delay.
+**Smart Emergency Traffic Management System** — a TCS iON AI Hackathon project.
 
-![SignalFlow Orchestrator Dashboard](./screenshots/signalflow-dashboard.png)
+SignalFlow Orchestrator is a web-based prototype that demonstrates how traffic signals could prioritize emergency vehicles such as ambulances and fire engines. It includes a traffic dashboard, emergency priority ranking, and conflict simulation using mock data.
 
-## 📌 Overview
+## 🔗 Project Link
 
-SignalFlow Orchestrator is a web-based simulation of an emergency traffic management system. It models a network of traffic intersections and demonstrates how ambulances, fire engines, and police vehicles can be assigned priority when responding to emergencies.
+[Open SignalFlow Orchestrator](https://signalflow-orchestrator.ai.studio)
 
-The application monitors simulated traffic conditions, evaluates competing emergency dispatches, and demonstrates how signals may be coordinated to create a safer and faster route.
+## Features
 
-**Important:** This is a hackathon prototype. All vehicles, traffic telemetry, intersections, and performance results are simulated. It is not connected to real traffic infrastructure and must not be used to control real traffic signals.
+- Emergency vehicle dispatch simulation
+- Traffic intersection dashboard
+- Emergency priority queue
+- Conflict arbitration demonstration
+- Traffic flow and congestion visualization
+- Performance indicators using simulated data
 
-## 🎯 Problem Statement
+## Important Note
 
-Emergency vehicles can lose valuable time at congested roads and traffic intersections. When multiple emergency vehicles need priority at the same time, traffic management also needs a consistent way to compare urgency and avoid conflicting signal requests.
-
-SignalFlow Orchestrator demonstrates a possible software-based approach to:
-- Prioritize emergency dispatches using a consistent urgency standard.
-- Resolve competing priority requests at intersections.
-- Simulate traffic-signal preemption and coordinated green waves.
-- Display traffic conditions and emergency operations in one dashboard.
-- Measure simulated response-delay and traffic-flow outcomes.
-
-## 💡 Proposed Solution
-
-The prototype provides a centralized dashboard where a user can observe a simulated metropolitan road grid, monitor emergency units, and test how the system responds to competing dispatches.
-
-A typical demonstration:
-1. Add or select an emergency unit.
-2. Observe its simulated location and urgency.
-3. Submit competing emergency requests.
-4. Run conflict arbitration to determine which request receives priority.
-5. View the simulated signal preemption and traffic-flow changes.
-6. Review performance indicators and scenario results.
-
-## ✨ Features
-
-- **Live Operations Dashboard** — Overview of simulated emergency activity and traffic conditions.
-- **Metropolitan Grid Telemetry** — Visual 5×5 grid of 25 smart intersections.
-- **Emergency Dispatch Simulation** — Demonstrates ambulance, fire-engine, and police dispatches.
-- **Priority Queue** — Displays requests awaiting intersection priority.
-- **Conflict Desk / Arbitration** — Tests how competing emergency requests are resolved.
-- **Traffic Signal Preemption** — Highlights intersections where emergency priority is simulated.
-- **Traffic Flow & Congestion Views** — Switch between traffic-flow and congestion visualization.
-- **Performance & SLA Analytics** — Demonstrates operational metrics using mock data.
-- **Demo Scenarios** — Lets users explore predefined simulation cases.
-- **Simulation Controls** — Pause, reset, and adjust simulation speed where supported.
-
-> Feature availability and behavior depend on the current implementation in the app.
-
-## 🖥️ Application Preview
-
-Add a screenshot of the dashboard to your repository:
-
-1. Create a folder named `screenshots` in the repository.
-2. Save the app screenshot as `signalflow-dashboard.png`.
-3. Keep the image reference above, or update it to match your screenshot filename.
-
-## 🧰 Technology
-
-Update this section to match the actual project files and implementation.
-
-- **Application UI:** Web application
-- **AI-assisted development:** Google AI Studio Build
-- **Data:** Simulated / mock traffic and emergency dispatch data
-- **Visualization:** Interactive traffic-grid dashboard
-
-If your project uses a specific framework, language, or service, list it here (for example, React, TypeScript, or a mapping library). Do not list technologies that are not actually used.
-
-## 🚀 Getting Started
-
-### Option 1 — Run the hosted demo
-
-If the app is deployed, open:
-
-**[Launch SignalFlow Orchestrator](ADD_YOUR_DEPLOYED_APP_URL_HERE)**
-
-Replace the placeholder with your published application URL.
-
-### Option 2 — Run locally
-
-The exact steps depend on the framework and files generated by Google AI Studio.
-
-For a typical Node.js project:
-
-```bash
-git clone ADD_YOUR_GITHUB_REPOSITORY_URL_HERE
-cd ADD_YOUR_PROJECT_FOLDER
-npm install
-npm run dev
-```
-
-Open the local URL shown in the terminal.
-
-If your project uses a different setup, replace these commands with the instructions from its `package.json` or project documentation.
-
-## 🧪 Hackathon Demo Scenario
-
-**Scenario: Two emergency units request priority at a shared intersection**
-
-1. Dispatch an ambulance and a fire engine toward the same intersection.
-2. Observe both requests in the priority queue or conflict desk.
-3. Run the conflict-arbitration test.
-4. Review the selected request and the simulated signal response.
-5. Compare the displayed performance indicators before and after the scenario.
-
-This scenario demonstrates the concept of transparent emergency prioritization. The result is a simulation, not a validated real-world traffic-control decision.
-
-## 📊 Expected Impact
-
-The project aims to demonstrate how coordinated emergency signal management could:
-- Reduce simulated waiting time for emergency vehicles.
-- Improve visibility of competing emergency requests.
-- Support consistent, explainable priority decisions.
-- Help demonstrate traffic-management concepts through an interactive interface.
-
-Any numerical impact shown in the app should be treated as a simulated result unless it has been validated using real-world data.
-
-## 🔒 Safety & Limitations
-
-- No live traffic-camera, GPS, emergency-service, or traffic-controller connection is implied.
-- The dashboard uses mock data for demonstration.
-- Signal changes are simulated and do not control physical traffic lights.
-- The prototype is not safety-certified and is not intended for operational emergency response.
-- Real deployment would require validated algorithms, reliable live data, security, fail-safe controls, and approval from relevant traffic and emergency authorities.
-
-## 🛣️ Future Enhancements
-
-- Integrate authorized real-time traffic and vehicle data.
-- Add route optimization using road-network information.
-- Improve explainability of priority scores and arbitration decisions.
-- Test scenarios with more emergency units and intersections.
-- Evaluate the system using realistic traffic datasets.
-- Add role-based access, audit logs, and robust safety mechanisms.
-
-## 👥 Team
-
-Add your team members and responsibilities:
-
-| Name | Role |
-|---|---|
-| Add team member | Add contribution |
-| Add team member | Add contribution |
-| Add team member | Add contribution |
-
-## 🏆 Hackathon
-
-**Event:** TCS iON AI Hackathon  
-**Project:** SignalFlow Orchestrator – Smart Emergency Traffic Management System
-
-## 📄 License
-
-Choose a license before publishing this project for reuse. If you have not selected one, you can leave this section out for now.
+This is a hackathon prototype. Traffic, emergency dispatches, and performance values are simulated. The application does not control real traffic signals.
 
 ---
 
-*Built as a student hackathon prototype to explore smarter, safer emergency traffic coordination.*
+Created for the **TCS iON AI Hackathon**.
